@@ -1,14 +1,14 @@
 # 2019-05-22
-## Tomcat 启动报错
-### 错误信息：`the session manager failed to start`
-### 解决办法：重启服务器
++  Tomcat 启动报错
+   + 错误信息：`the session manager failed to start`
+   + 解决办法：重启服务器，百度不到相关解决办法。
 
 # 2019-05
 ## 五花八门的玩不转
 
 + IDEA Console `System.out.println(str);`
    + 错误信息：str为读取Word内容后的String类型，包含回车换行等，在打印时只显示最后一行内容。如果Debug str或把str传到页面显示，均显示str完整信息。
-   + 解决办法：I don't know
+   + 解决办法：I don't know！
 
 
 + 不知道是IDEA还是JVM，`String str="中国"；System.out.println(str);`
