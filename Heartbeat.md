@@ -33,7 +33,8 @@
 ```
 
 + C#与Java同步加密解密DES算法
-   + 参考：https://blog.csdn.net/softwave/article/details/53939824
+   + 加密时密钥的key值和IV向量值要保持一致。
+   + 另外需要注意编码问题，以及网络传输时url的编码。
    + Java 示例代码：
    
 ```java
@@ -164,5 +165,96 @@ public class MyDes {
         System.out.println("加密后：\n"+mi);
     }
 }
+
+```
+
+   + C# 示例代码：
+   
+```C#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Security.Cryptography;
+using System.IO;
+
+namespace HYJK.JDZF.Common.Security
+{
+    /// <summary>
+    /// Des加解密
+    /// </summary>
+    public class MyDes
+    {
+        private static Byte[] IV = { 0xAC, 0x12,0xEF, 0x1D, 0x56, 0x78, 0x9C, 0xAB };
+        private static string sSecretKey = "EB9925W6";
+
+        #region 加密
+        /// <summary>
+        /// 加密 secret key 
+        /// </summary>
+        /// <param name="strText">text</param>
+        /// <param name="sSecretKey">key</param>
+        /// <returns>des Encrypt string</returns>
+        public static string Encrypt(string strText, string secretKey = "")
+        {
+            Byte[] byKey = { };
+            try
+            {
+                if (secretKey.Length < 8)
+                {
+                    secretKey = secretKey + sSecretKey;
+                }
+                byKey = System.Text.Encoding.UTF8.GetBytes(secretKey.Substring(0, 8));
+                DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+                Byte[] inputByteArray = Encoding.UTF8.GetBytes(strText);
+                MemoryStream ms = new MemoryStream();
+                CryptoStream cs = new CryptoStream(ms, des.CreateEncryptor(byKey, IV), CryptoStreamMode.Write);
+                cs.Write(inputByteArray, 0, inputByteArray.Length);
+                cs.FlushFinalBlock();
+                return Convert.ToBase64String(ms.ToArray());
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        #endregion
+
+        #region 解密
+        /// <summary>
+        /// 解密
+        /// </summary>
+        /// <param name="strText">text</param>
+        /// <param name="sDecrKey">key</param>
+        /// <returns>des Decrypt string</returns>   
+        public static String Decrypt(string strText, string secretKey = "")
+        {
+            Byte[] byKey = { };
+            Byte[] inputByteArray = new byte[strText.Length];
+            try
+            {
+                if (secretKey.Length < 8)
+                {
+                    secretKey = secretKey + sSecretKey;
+                }
+                byKey = System.Text.Encoding.UTF8.GetBytes(secretKey.Substring(0, 8));
+                DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+                inputByteArray = Convert.FromBase64String(strText);
+                MemoryStream ms = new MemoryStream();
+                CryptoStream cs = new CryptoStream(ms, des.CreateDecryptor(byKey, IV), CryptoStreamMode.Write);
+                cs.Write(inputByteArray, 0, inputByteArray.Length);
+                cs.FlushFinalBlock();
+                System.Text.Encoding encoding = System.Text.Encoding.UTF8;
+                return encoding.GetString(ms.ToArray());
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        #endregion
+    }
+}
+
 
 ```
