@@ -17,7 +17,28 @@
    + 错误信息：例如`upload` 变为 `uploadCheckRd`，20190-5-27遇到又.java和.js文件中的`index`变为`indexSop`
    + 自己再改回去呗，还能怎么办，Revert
 
-
++ 使用 Maven `mvn clean package`编译项目
+   + 错误信息：编码gbk的不可映射字符
+   + 指明编译时使用的字符编码`<encoding>utf8</encoding>`
+   
+```XML
+      <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>utf8</encoding>
+                    <!-- 指明编译源代码时使用的字符编码，
+                      maven编译的时候默认使用的GBK编码，
+                      通过encoding属性设置字符编码，
+                      告诉maven这个项目使用UTF-8来编译 -->
+                </configuration>     
+      </plugin>
+```
+   
+   
 ```java
    /**
    ***  把password中的汉字过滤掉
