@@ -24,7 +24,56 @@ CREATE
  
 DELIMITER ;
 ```
++ zTree `onAsyncSuccess`指加载完成后要调用的方法
+   +  `//onAsyncSuccess: loadSuccess, `    //避免了加载时闪闪的情况 
+   +  `tree.expandAll(false); `     //是否展开，false为不展开
 
+```JavaScript
+function loadtree() {
+        var treeid = "UnitTree";
+        var settings = {
+            async: {
+                enable: true,
+                url: "${ctx}/tentity/GetEntityList",
+                autoParam: ["id"],
+                otherParam: ["rootid", entityID],
+                contentType: "application/json; charset=utf-8",
+                type: "POST",
+                dataType: "json"
+            },
+            callback: {
+                //onAsyncSuccess: loadSuccess,     //避免了加载时闪闪的情况
+                onClick: zTreeOnClick
+            },
+            view: {
+                selectedMulti: false,
+                //showIcon:false
+            }
+        };
+        $.fn.zTree.init($("#" + treeid), settings);
+    }
+    var loadSuccess = function (e, id, n, m) {
+        if (!!m) {
+            var tree = getTree(id);
+            tree.expandAll(false);      //是否展开，false为不展开
+            $.each(m, function (i, v) {
+                var node = tree.getNodeByParam("id", v.id, null);
+                tree.reAsyncChildNodes(node, "refresh");
+            });
+        }
+    };
+    var zTreeOnClick = function (e, treeId, treeNode) {
+        var dw=document.getElementById("dw");
+        dw.value=treeNode.id;
+        if (treeNode.id == '5301'||treeNode.id=='101'){
+            $("#btnNew").hide();
+            $("#btnDelete").show();
+        }
+        $('#hENTITYID').val(treeNode.id);
+        oTable.fnDraw();
+    };
+```
+   
 + layer.open 中右上角关闭按钮触发的回调用 `cancel `
    + 调.Net系统的页面，当数据发生变化时，希望可以点右上角的叉在关闭当前页面时刷新父级的列表页面数据。 
 
