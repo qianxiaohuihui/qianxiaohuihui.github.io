@@ -14,3 +14,5 @@ npm install
 
 npm run dev
 
++ IDEA 快速创建HTML输入html:5 Tab
+
