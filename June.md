@@ -94,6 +94,16 @@ function loadtree() {
     layer.full(index);
 }
 ```
++ UEditor 百度的富文本编辑器
+   + 初始化时设置大小，并加载内容
+   
+```JavaScript
+var um = UM.getEditor('myEditor', 
+	{ initialFrameHeight: 260 ,initialFrameWidth: null , autoHeightEnabled: false}
+);
+um.setContent("我的内容");
+```
+
 + C语言实现学生信息管理系统
    + `Sleep();` S需要大写，并引入 `#include <windows.h>`
    + `#include <unistd.h>`找不到头文件可以替换为这两个：`#include <io.h>` `#include <process.h>`
