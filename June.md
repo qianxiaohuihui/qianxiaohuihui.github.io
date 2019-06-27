@@ -1,5 +1,5 @@
-# 六月的雨
-+ MySQL存储过程，可以取字符串的hashcode,实际可以应用到将varchar字段转为bigint字段上。
+# 六月的雨<br/>
+# MySQL存储过程，可以取字符串的hashcode,实际可以应用到将varchar字段转为bigint字段上。
 
 ```SQL
 DELIMITER $$
@@ -24,7 +24,7 @@ CREATE
  
 DELIMITER ;
 ```
-+ zTree `onAsyncSuccess`指加载完成后要调用的方法
+# zTree `onAsyncSuccess`指加载完成后要调用的方法
    +  `//onAsyncSuccess: loadSuccess, `    //避免了加载时闪闪的情况 
    +  `tree.expandAll(false); `     //是否展开，false为不展开
 
@@ -74,7 +74,7 @@ function loadtree() {
     };
 ```
    
-+ layer.open 中右上角关闭按钮触发的回调用 `cancel `
+# layer.open 中右上角关闭按钮触发的回调用 `cancel `
    + 调.Net系统的页面，当数据发生变化时，希望可以点右上角的叉在关闭当前页面时刷新父级的列表页面数据。 
 
 ```javascript
@@ -94,7 +94,7 @@ function loadtree() {
     layer.full(index);
 }
 ```
-+ UEditor 百度的富文本编辑器
+# UEditor 百度的富文本编辑器
    + 初始化时设置大小，并加载内容
    
 ```JavaScript
@@ -104,7 +104,36 @@ var um = UM.getEditor('myEditor',
 um.setContent("我的内容");
 ```
 
-+ C语言实现学生信息管理系统
+# Java类初始化的加载顺序
+   + `static{...}`为静态方法的写法
+   + 输出结果为<br/>
+static One <br/>
+static Two <br/>
+I'm main method <br/>
+I'm One class <br/>
+HelloOne <br/>
+I'm Two class <br/>
+HelloTwo <br/>
+   
+```Java
+public class HelloTwo extends HelloOne{
+    public HelloTwo(){System.out.println("HelloTwo");}
+    {System.out.println("I'm Two class");}
+    static {System.out.println("static Two");}
+
+    public static void main(String[] args) {
+        System.out.println("I'm main method");
+        new HelloTwo();
+    }
+}
+class HelloOne {
+    public HelloOne(){System.out.println("HelloOne");}
+    {System.out.println("I'm One class");}
+    static {System.out.println("static One");}
+}
+```
+
+# C语言实现学生信息管理系统
    + `Sleep();` S需要大写，并引入 `#include <windows.h>`
    + `#include <unistd.h>`找不到头文件可以替换为这两个：`#include <io.h>` `#include <process.h>`
    + 不要定义用不到的变量，且变量要在函数前定义。
