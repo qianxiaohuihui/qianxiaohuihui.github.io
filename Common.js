@@ -523,3 +523,15 @@ function openWinFullCharts(url, title, w, h) {
     });
     parent.layer.full(index);
 }
+
+//通过NAME自动加载值 formAssign(d.data);
+/*
+ajaxPost("${ctx}/abut/showCyjy?id=${param.get('id')}", {}, function (d) {
+            formAssign(d.data);
+            var sDate = $("#SAMP_DATE").val();
+            if (sDate != '') {
+                $("#SAMP_DATE").val(sDate.substr(0, 10));
+            }
+           
+        });
+*/
