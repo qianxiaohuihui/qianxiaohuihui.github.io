@@ -38,3 +38,21 @@ $(function (t) {
         }
     });
 });
+
+/*引用方式举例
+
+DicHBFPArea('0', 'sheng');
+DicHBFPArea('130000', 'shi');
+        $("#" + cid + " option").each(function (k, v) {
+            if ($(this).attr("value")) $(this).remove();
+        });
+        $.ajaxSetup({async: false});
+        ajaxPost("/tpage/GetAreaCode", {"value": pvalue}, function (uts) {
+            if (!!uts.data) {
+                $.each(uts.data, function (i, v) {
+                    $('<option value="' + v.AREA_CODE + '">' + v.AREA_NAME + '</option>').appendTo($("#" + cid));
+                });
+            }
+        });
+        $.ajaxSetup({async: true});
+*/
