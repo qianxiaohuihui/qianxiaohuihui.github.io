@@ -1,0 +1,3 @@
+WdatePicker({lang:'zh-cn',dateFmt:'yyyy-MM-dd HH:mm:ss',readOnly:true});  //不要用在onfocus事件上
+
+laydate.render({elem: '#txtDate'}); //控件ID
