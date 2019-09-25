@@ -1,0 +1,56 @@
+
+CREATE PROCEDURE [dbo].[B_NewCbit_JYTYPE]
+AS
+begin
+    /* 更新企业的器械类型*/
+    --创建临时表
+	CREATE TABLE #t (
+		qyid varchar(50) primary key,
+		cname varchar(200),
+		itype varchar(40)
+	)
+	--在临时表中存入qyid,cname
+	INSERT #t(qyid, cname)
+	SELECT qyid, cname
+	FROM B_NewCbit
+	WHERE delflag=0
+
+		DECLARE @qyid_s varchar(50)
+		DECLARE @qyid_i INT, @id_or INT
+		DECLARE cur_ids CURSOR LOCAL FORWARD_ONLY FAST_FORWARD READ_ONLY
+		FOR
+			SELECT qyid FROM #t
+
+		OPEN cur_ids
+		FETCH NEXT FROM cur_ids INTO @qyid_s
+		WHILE @@FETCH_STATUS = 0
+		BEGIN
+			SET @id_or = 0
+			DECLARE cur_types CURSOR LOCAL FORWARD_ONLY FAST_FORWARD READ_ONLY
+			FOR
+				SELECT dbo.fn_TypeStrToInt(c.QYTYPE)
+				FROM b_NewLicence b,B_cbit c
+				WHERE b.lkeyID = c.QYID and b.QYID = @qyid_s
+			OPEN cur_types
+			FETCH NEXT FROM cur_types INTO @qyid_i
+			WHILE @@FETCH_STATUS = 0
+			BEGIN
+				SET @id_or = @id_or | @qyid_i
+				FETCH NEXT FROM cur_types INTO @qyid_i
+			END
+			CLOSE cur_types
+			DEALLOCATE cur_types
+
+			UPDATE #t SET itype = dbo.fn_TypeIntToStr(@id_or) WHERE qyid = @qyid_s
+			
+			FETCH NEXT FROM cur_ids INTO @qyid_s
+		END
+		CLOSE cur_ids
+		DEALLOCATE cur_ids
+
+	--select * from #t 
+	--更新企业表
+	UPDATE B_NewCbit set XKLX=b.itype from B_NewCbit a,#t b where a.QYID = b.QYID
+	--select top 1000 cname,xklx from b_Newcbit 
+
+end
