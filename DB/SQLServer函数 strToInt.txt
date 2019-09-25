@@ -1,0 +1,14 @@
+CREATE FUNCTION [dbo].[fn_TypeStrToInt](@qytypes VARCHAR(40))
+RETURNS INTEGER
+AS
+BEGIN
+	RETURN CASE @qytypes
+      WHEN '一类' THEN 1
+      WHEN '二类' THEN 2
+      WHEN '三类' THEN 4
+      WHEN '一类,二类' THEN 3
+      WHEN '一类,三类' THEN 5
+	  WHEN '二类,三类' THEN 6
+	  WHEN '一类,二类,三类' THEN 7
+   END
+END
