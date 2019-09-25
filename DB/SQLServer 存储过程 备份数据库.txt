@@ -1,0 +1,13 @@
+-- Description:	<完整备份>
+create PROCEDURE [dbo].[sp_BackupDatabases] 	
+AS
+BEGIN
+	--设置备份数据库的存放目录
+    declare @diskPath nvarchar(300)
+    declare @backupTime nvarchar(20)
+	--select @backupTime=CONVERT(VARCHAR(8),GETDATE(),112)+REPLACE(CONVERT(VARCHAR(5),GETDATE(),114),':','')
+    select @backupTime=CONVERT(VARCHAR(8),GETDATE(),112)
+	SET @diskPath='D:\bak\ylqx'+@backupTime+'.BAK'
+
+	BACKUP DATABASE ylqx TO DISK = @diskPath WITH FORMAT;
+END
