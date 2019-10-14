@@ -1,0 +1,182 @@
+		<dependency>
+            <groupId>org.mp4parser</groupId>
+            <artifactId>isoparser</artifactId>
+            <version>1.9.27</version>
+        </dependency>
+
+
+
+
+
+import org.mp4parser.IsoFile;
+import org.mp4parser.boxes.iso14496.part12.*;
+import org.mp4parser.boxes.sampleentry.AudioSampleEntry;
+import org.mp4parser.boxes.sampleentry.VisualSampleEntry;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * 用于提取MP4格式的视频文件信息的工具类
+ * @author zhangwu   2018.10.19
+ * 工具包：https://github.com/sannies/mp4parser
+ * 不同音视频类别对应的Box接口，请参考 jar:/isoparser-default.properties
+ */
+public class Mp4FileInfo {
+	protected String videoFilePath = null;
+	protected String parsingError = null; //解析视频文件的时候出现的错误信息
+	protected MovieHeaderBox movieHeaderBox = null; //存放视频基本信息的Box，可以获取视频的创建时间、修改时间、播放时长等信息
+	protected List<TrackBox> trackBoxes = null; //本MP4文件包含的所有的Tracks
+	protected TrackBox soundTrackBox = null; //存放音频信道信息的Box，这里只判断第一条音频信道的信息即可
+	protected SampleDescriptionBox soundSampleDescBox = null; //存放音频帧信息描述对象的Box
+	protected TrackBox videoTrackBox = null; //存放视频信道信息的Box，这里只判断第一条视频信道的信息即可
+	protected SampleDescriptionBox videoSampleDescBox = null; //存放视频帧信息描述对象的Box
+
+	public Mp4FileInfo(String videoFilePath) {
+		this.videoFilePath = videoFilePath;
+	}
+	//对视频文件进行解析，成功解析完毕返回true
+	public boolean parseFile() {
+		File videoFile = new File(videoFilePath);
+		if (!videoFile.exists()) {
+			parsingError = "指定的文件不存在。";
+			return false;
+		}
+		if (!videoFile.canRead()) {
+			parsingError = "无法读取指定的视频文件的内容。";
+			return false;
+		}
+		//throws IllegalStateException,
+		IsoFile isoFile = null;
+		try {
+			isoFile = new IsoFile(videoFilePath);
+			//isoFile = new IsoFile(new FileInputStream(videoFilePath).getChannel());
+		}
+		catch (IOException ioe) {
+			parsingError = ioe.toString();
+			return false;
+		}
+		//搜索路径："moov/trak[?]/mdia/minf/stbl/stsd" 这个Box里有视频的编码格式
+		MediaInformationBox mediaInformationBox;
+
+		//首先找出所有的TrackBox，选取其中的视频类TrackBox进行判断，忽略音频类TrackBox和Hint类TrackBox
+		MovieBox movieBox = isoFile.getMovieBox();
+		movieHeaderBox = movieBox.getMovieHeaderBox();
+
+		trackBoxes = movieBox.getBoxes(TrackBox.class);
+		//也可以：List<TrackBox> trackBoxes = Path.getPaths(isoFile, "moov[0]/trak/");
+		//如果获取的是单下级Box，则可以使用：Path.getPath(isoFile, "moov/trak[?]/mdia/minf/stbl/stsd/avc1/avcC")
+		//System.err.println(trackBoxes.size());
+		for (TrackBox trackBox : trackBoxes) { //循环搜索，看看哪个Track是视频类Track，哪个是音频类Track
+			MediaBox mediaBox = trackBox.getMediaBox();
+			//MediaHeaderBox mediaHeaderBox = mediaBox.getMediaHeaderBox();
+			HandlerBox handlerBox = mediaBox.getHandlerBox();
+			//System.out.println(handlerBox.getName()); //TrackTypeName
+			switch (handlerBox.getHandlerType()) {
+				case "soun":
+					if (soundTrackBox == null) {
+						soundTrackBox = trackBox;
+						mediaInformationBox = mediaBox.getMediaInformationBox();
+						soundSampleDescBox = mediaInformationBox.getSampleTableBox().getSampleDescriptionBox();
+					}
+					break;
+				case "vide":
+					if (videoTrackBox == null) {
+						videoTrackBox = trackBox;
+						mediaInformationBox = mediaBox.getMediaInformationBox();
+						videoSampleDescBox = mediaInformationBox.getSampleTableBox().getSampleDescriptionBox();
+					}
+					break;
+				//case "hint":
+			}
+		}
+		//String value = nam.getValue();
+		try {
+			isoFile.close();
+		}
+		catch (IOException ioe) {
+			parsingError = ioe.toString();
+			return false;
+		}
+		return true;
+	}
+	//获取解析过程中出现的错误信息
+	public String getParsingError() {
+		return parsingError;
+	}
+	//获取视频的录制时间
+	public Date getCreationTime() {
+		if (movieHeaderBox == null)
+			return null;
+		return movieHeaderBox.getCreationTime();
+	}
+	//获取视频的重新编辑时间
+	public Date getModificationTime() {
+		if (movieHeaderBox == null)
+			return null;
+		return movieHeaderBox.getModificationTime();
+	}
+	//获取视频的播放时长（秒数）
+	public long getMovieDuration() {
+		if (movieHeaderBox == null)
+			return -1;
+		return movieHeaderBox.getDuration() / movieHeaderBox.getTimescale();
+	}
+	//获取音频的编码格式类别
+	public String getAudioCodeType() {
+		if (soundSampleDescBox == null)
+			return null;
+		AudioSampleEntry sampleEntry = (AudioSampleEntry)soundSampleDescBox.getSampleEntry();
+		return sampleEntry.getType(); //可能的音频格式类别："mp4a";"samr";"sawb";"drms";"owma";"ec-3";"mlpa";"dtsl";"dtsh";"dtse";"enca";
+	}
+	//获取视频的编码格式类别
+	public String getVideoCodeType() {
+		if (videoSampleDescBox == null)
+			return null;
+		VisualSampleEntry sampleEntry = (VisualSampleEntry)videoSampleDescBox.getSampleEntry();
+		return sampleEntry.getType(); //可能的视频格式类别："mp4v";"s263";"avc1";"avc3";"drmi";"hvc1";"hev1";
+	}
+	//获取视频图像的宽度
+	public int getVideoFrameWidth() {
+		if (videoSampleDescBox == null)
+			return -1;
+		VisualSampleEntry sampleEntry = (VisualSampleEntry)videoSampleDescBox.getSampleEntry();
+		return sampleEntry.getWidth();
+	}
+	//获取视频图像的高度
+	public int getVideoFrameHeight() {
+		if (videoSampleDescBox == null)
+			return -1;
+		VisualSampleEntry sampleEntry = (VisualSampleEntry)videoSampleDescBox.getSampleEntry();
+		return sampleEntry.getHeight();
+	}
+	//获取音频的采样速率
+	public long getAudioSampleRate() {
+		if (soundSampleDescBox == null)
+			return -1;
+		AudioSampleEntry sampleEntry = (AudioSampleEntry)soundSampleDescBox.getSampleEntry();
+		return sampleEntry.getSampleRate();
+	}
+	//是否被支持在HTML页面中用 <video 来播放
+	public boolean isSupportedByHtml5() {
+		return "avc1".equals(getVideoCodeType()) && "mp4a".equals(getAudioCodeType());
+	}
+
+	public static void main(String[] args) {
+		Mp4FileInfo mp4FileInfo = new Mp4FileInfo("C:\\Users\\Administrator\\Desktop\\桌面文件\\codePic\\eat.mp4");
+		if (mp4FileInfo.parseFile()) {
+			System.out.println(mp4FileInfo.getCreationTime().toString());
+			System.out.println(mp4FileInfo.getModificationTime());
+			System.out.println(mp4FileInfo.getMovieDuration());
+			System.out.println(mp4FileInfo.getVideoCodeType());
+			System.out.println(mp4FileInfo.getVideoFrameWidth());
+			System.out.println(mp4FileInfo.getVideoFrameHeight());
+			System.out.println(mp4FileInfo.getAudioCodeType());
+			System.out.println(mp4FileInfo.isSupportedByHtml5()?"Supported by HTML5":"Not supported by HTML5");
+		}
+		else
+			System.out.println(mp4FileInfo.getParsingError());
+	}
+}

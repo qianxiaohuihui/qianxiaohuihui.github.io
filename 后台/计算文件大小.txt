@@ -1,0 +1,65 @@
+import org.hyjk.common.util.Strings;
+
+import java.io.File;
+import java.text.DecimalFormat;
+
+/**
+ * 统计文件夹或文件的大小，以KB、MB、GB形式展示
+ * */
+public class GetFileSize {
+
+    public static void main(String[] args) {
+
+        String dirPath="D:\\videos";
+        String dirSize = getFinalSize(dirPath);
+        //new File("F:\\svn\\bfc\\HYJK_BFC\\src\\src\\main\\webapp\\include\\files\\recycle_cert\\2019-01\\");
+        System.out.println("文件夹大小为："+dirSize);
+    }
+
+
+    public static String getFinalSize(String path){
+        if(!Strings.isNullOrEmpty(path)){
+            return getDirConvertSize(getDirSize(new File(path)));
+        }else{
+            return "";
+        }
+    }
+
+
+    //获取文件夹大小
+    public static double getDirSize(File file) {
+        //判断文件是否存在
+        if (file.exists()) {
+            //如果是目录则递归计算其内容的总大小
+            if (file.isDirectory()) {
+                File[] children = file.listFiles();
+                double size = 0;
+                for (File f : children)
+                    size += getDirSize(f);
+                return size;
+            } else {
+                return (double) file.length();      //返回文件大小
+            }
+        } else {
+            System.out.println("文件或者文件夹不存在，请检查路径是否正确！");
+            return 0.0;
+        }
+    }
+
+
+    //将文件夹大小转换为格式化的带单位形式
+    public static String getDirConvertSize(double dirSize){
+        String convertSize = "";
+        DecimalFormat df = new DecimalFormat("#.00");
+        if (dirSize < 1024) {
+            convertSize = df.format(dirSize) + "Byte";
+        } else if (dirSize < 1048576) {
+            convertSize = df.format( dirSize / 1024) + "KB";
+        } else if (dirSize < 1073741824) {
+            convertSize = df.format( dirSize / 1048576) + "MB";
+        } else {
+            convertSize = df.format( dirSize / 1073741824) + "GB";
+        }
+        return convertSize;
+    }
+}
