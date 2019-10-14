@@ -66,6 +66,7 @@ https://github.com/jobbole/awesome-programming-books
 Java资源大全
 https://github.com/jobbole/awesome-java-cn#awesome-java-cn
 
+https://222.222.63.9:8443/svn/
 
 医疗器械
 http://qxjg.hebfda.gov.cn:8090/index
