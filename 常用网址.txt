@@ -29,8 +29,10 @@ https://www.yasuotu.com/
 http://api.map.baidu.com/lbsapi/getpoint/index.html
 
 企业级WEB报表
-http://www.finereport.com/
+http://www.finereport.com
 
+Java博客
+https://www.fangzhipeng.com
 
 开发学习
 http://how2j.cn/
